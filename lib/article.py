@@ -1,6 +1,4 @@
 from .database_utils import get_connection
-from .author import Author
-from .magazine import Magazine
 
 class Article:
     def __init__(self, id, title, content, author, magazine):
@@ -18,6 +16,8 @@ class Article:
 
     @classmethod
     def new_from_db(cls, row):
+        from .author import Author
+        from .magazine import Magazine
         id, title, content, author_id, magazine_id = row
         author = Author.find_by_id(author_id)
         magazine = Magazine.find_by_id(magazine_id)

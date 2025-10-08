@@ -1,6 +1,4 @@
 from .database_utils import get_connection
-from .article import Article
-from .author import Author
 
 class Magazine:
     def __init__(self, id, name, category):
@@ -59,6 +57,7 @@ class Magazine:
         conn.close()
 
     def articles(self):
+        from .article import Article
         conn = get_connection()
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM articles WHERE magazine_id = ?", (self.id,))
@@ -67,6 +66,7 @@ class Magazine:
         return [Article.new_from_db(row) for row in rows]
 
     def contributors(self):
+        from .author import Author
         conn = get_connection()
         cursor = conn.cursor()
         cursor.execute("SELECT DISTINCT authors.* FROM authors JOIN articles ON authors.id = articles.author_id WHERE articles.magazine_id = ?", (self.id,))
@@ -83,6 +83,7 @@ class Magazine:
         return [row[0] for row in rows]
 
     def contributing_authors(self):
+        from .author import Author
         conn = get_connection()
         cursor = conn.cursor()
         cursor.execute("SELECT author_id FROM articles WHERE magazine_id = ? GROUP BY author_id HAVING COUNT(id) > 2", (self.id,))
