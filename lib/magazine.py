@@ -130,13 +130,15 @@ class Magazine:
         """
         conn = get_connection()
         cursor = conn.cursor()
-        if self.id is None:
-            cursor.execute("INSERT INTO magazines (name, category) VALUES (?, ?)", (self.name, self.category))
-            self.id = cursor.lastrowid
-        else:
-            cursor.execute("UPDATE magazines SET name = ?, category = ? WHERE id = ?", (self.name, self.category, self.id))
-        conn.commit()
-        conn.close()
+        try:
+            if self.id is None:
+                cursor.execute("INSERT INTO magazines (name, category) VALUES (?, ?)", (self.name, self.category))
+                self.id = cursor.lastrowid
+            else:
+                cursor.execute("UPDATE magazines SET name = ?, category = ? WHERE id = ?", (self.name, self.category, self.id))
+            conn.commit()
+        finally:
+            conn.close()
 
     def articles(self):
         """

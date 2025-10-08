@@ -1,32 +1,48 @@
+"""
+Test module for Magazine class functionality.
+
+This module contains unit tests for the Magazine class, covering creation,
+saving, relationships with articles and contributors, and advanced methods
+like contributing_authors and top_publisher.
+"""
+
 import unittest
+import os
 from lib.author import Author
 from lib.magazine import Magazine
 from lib.article import Article
-from lib.database_utils import create_tables, get_connection
+from lib.database_utils import create_tables, get_connection, DB_FILE
 
 class TestMagazine(unittest.TestCase):
+    """
+    Test cases for Magazine class methods and relationships.
+    """
+
     @classmethod
     def setUpClass(cls):
+        """Set up test database tables."""
+        if os.path.exists(DB_FILE):
+            os.remove(DB_FILE)
         create_tables()
-        cls.conn = get_connection()
-        cls.cursor = cls.conn.cursor()
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.conn.close()
 
     def setUp(self):
-        self.cursor.execute("DELETE FROM articles")
-        self.cursor.execute("DELETE FROM authors")
-        self.cursor.execute("DELETE FROM magazines")
-        self.conn.commit()
+        """Reset database state before each test by clearing all tables."""
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM articles")
+        cursor.execute("DELETE FROM authors")
+        cursor.execute("DELETE FROM magazines")
+        conn.commit()
+        conn.close()
 
     def test_magazine_creation_and_save(self):
+        """Test creating a new magazine and saving to database."""
         magazine = Magazine(None, "Science Daily", "Science")
         magazine.save()
         self.assertIsNotNone(magazine.id)
 
     def test_article_titles_and_contributors(self):
+        """Test retrieving article titles and contributors for a magazine."""
         author = Author(None, "Bob")
         author.save()
         magazine = Magazine(None, "Nature", "Science")
@@ -39,6 +55,7 @@ class TestMagazine(unittest.TestCase):
         self.assertEqual(contributors[0].name, "Bob")
 
     def test_contributing_authors_and_top_publisher(self):
+        """Test contributing authors filter and top publisher selection."""
         author = Author(None, "Carol")
         author.save()
         magazine = Magazine(None, "Tech World", "Technology")
