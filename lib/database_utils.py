@@ -3,7 +3,9 @@ import sqlite3
 DB_FILE = 'magazine.db'
 
 def get_connection():
-    return sqlite3.connect(DB_FILE)
+    conn = sqlite3.connect(DB_FILE)
+    conn.execute("PRAGMA foreign_keys = ON;")
+    return conn
 
 def create_tables():
     conn = get_connection()
