@@ -1,9 +1,17 @@
 from .database_utils import get_connection
+from .article import Article
+from .magazine import Magazine
 
 class Author:
     def __init__(self, id, name):
+        if not isinstance(name, str) or len(name) == 0:
+            raise ValueError("Name must be a non-empty string")
         self.id = id
-        self.name = name
+        self._name = name
+
+    @property
+    def name(self):
+        return self._name
 
     @classmethod
     def new_from_db(cls, row):
@@ -30,3 +38,19 @@ class Author:
             cursor.execute("UPDATE authors SET name = ? WHERE id = ?", (self.name, self.id))
         conn.commit()
         conn.close()
+
+    def articles(self):
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM articles WHERE author_id = ?", (self.id,))
+        rows = cursor.fetchall()
+        conn.close()
+        return [Article.new_from_db(row) for row in rows]
+
+    def magazines(self):
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT DISTINCT magazines.* FROM magazines JOIN articles ON magazines.id = articles.magazine_id WHERE articles.author_id = ?", (self.id,))
+        rows = cursor.fetchall()
+        conn.close()
+        return [Magazine.new_from_db(row) for row in rows]
