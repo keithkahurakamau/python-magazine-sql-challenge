@@ -54,3 +54,13 @@ class Author:
         rows = cursor.fetchall()
         conn.close()
         return [Magazine.new_from_db(row) for row in rows]
+
+    def add_article(self, magazine, title):
+        article = Article(None, title, "", self, magazine)
+        article.save()
+        return article
+
+    def topic_areas(self):
+        magazines = self.magazines()
+        categories = set(m.category for m in magazines)
+        return list(categories)

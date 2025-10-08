@@ -73,3 +73,30 @@ class Magazine:
         rows = cursor.fetchall()
         conn.close()
         return [Author.new_from_db(row) for row in rows]
+
+    def article_titles(self):
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT title FROM articles WHERE magazine_id = ?", (self.id,))
+        rows = cursor.fetchall()
+        conn.close()
+        return [row[0] for row in rows]
+
+    def contributing_authors(self):
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT author_id FROM articles WHERE magazine_id = ? GROUP BY author_id HAVING COUNT(id) > 2", (self.id,))
+        rows = cursor.fetchall()
+        conn.close()
+        return [Author.find_by_id(row[0]) for row in rows]
+
+    @classmethod
+    def top_publisher(cls):
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT magazine_id, COUNT(id) FROM articles GROUP BY magazine_id ORDER BY COUNT(id) DESC LIMIT 1")
+        row = cursor.fetchone()
+        conn.close()
+        if row:
+            return cls.find_by_id(row[0])
+        return None
