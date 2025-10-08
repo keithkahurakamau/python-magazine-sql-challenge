@@ -1,4 +1,16 @@
+"""
+Article module for managing article entities in the magazine database.
+
+This module defines the Article class, which represents an article in the system.
+Articles have a title (read-only), content, and belong to an author and a magazine.
+The author and magazine are stored as object references for easy access.
+"""
+
 from .database_utils import get_connection
+
+class Article:
+
+ .from .database_utils import get_connection
 
 class Article:
     def __init__(self, id, title, content, author, magazine):
